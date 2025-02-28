@@ -4,7 +4,7 @@ const routes = (handler) => [
     path: "/products",
     handler: handler.postProductHandler,
     options: {
-      auth: "forum_jwt",
+      auth: "tokorantau",
     },
   },
   {
@@ -17,7 +17,7 @@ const routes = (handler) => [
     path: "/products/{id}",
     handler: handler.deleteProductHandler,
     options: {
-      auth: "forum_jwt",
+      auth: "tokorantau",
     },
   },
   {
