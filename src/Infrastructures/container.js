@@ -1,46 +1,58 @@
 /* istanbul ignore file */
 
-const { createContainer } = require('instances-container');
+const { createContainer } = require("instances-container");
 
 // external agency
-const { nanoid } = require('nanoid');
-const bcrypt = require('bcrypt');
-const Jwt = require('@hapi/jwt');
-const pool = require('./database/postgres/pool');
+const { nanoid } = require("nanoid");
+const bcrypt = require("bcrypt");
+const Jwt = require("@hapi/jwt");
+const pool = require("./database/postgres/pool");
 
 // service (repository, helper, manager, etc)
-const PasswordHash = require('../Applications/security/PasswordHash');
-const BcryptPasswordHash = require('./security/BcryptPasswordHash');
+const PasswordHash = require("../Applications/security/PasswordHash");
+const BcryptPasswordHash = require("./security/BcryptPasswordHash");
 //authenticationRepository
-const AuthenticationRepository = require('../Domains/authentications/AuthenticationRepository');
-const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
+const AuthenticationRepository = require("../Domains/authentications/AuthenticationRepository");
+const AuthenticationRepositoryPostgres = require("./repository/AuthenticationRepositoryPostgres");
 //userRepository
-const UserRepository = require('../Domains/users/UserRepository');
-const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
+const UserRepository = require("../Domains/users/UserRepository");
+const UserRepositoryPostgres = require("./repository/UserRepositoryPostgres");
 //commentRepository
-const CommentRepository = require('./repository/CommentRepositoryPostgres');
-const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgres');
+const CommentRepository = require("./repository/CommentRepositoryPostgres");
+const CommentRepositoryPostgres = require("./repository/CommentRepositoryPostgres");
 //threadRepository
-const ThreadRepository = require('./repository/ThreadRespositoryPostgres');
-const ThreadRepositoryPostgres = require('./repository/ThreadRespositoryPostgres');
+const ThreadRepository = require("./repository/ThreadRespositoryPostgres");
+const ThreadRepositoryPostgres = require("./repository/ThreadRespositoryPostgres");
 
 // use case
-const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
-const JwtTokenManager = require('./security/JwtTokenManager');
-const RefreshAuthenticationUseCase = require('../Applications/use_case/Auth_UseCase/RefreshAuthenticationUseCase');
+const AuthenticationTokenManager = require("../Applications/security/AuthenticationTokenManager");
+const JwtTokenManager = require("./security/JwtTokenManager");
+const RefreshAuthenticationUseCase = require("../Applications/use_case/Auth_UseCase/RefreshAuthenticationUseCase");
 //userUseCase
-const AddUserUseCase = require('../Applications/use_case/UserUseCase/AddUserUseCase');
-const LoginUserUseCase = require('../Applications/use_case/UserUseCase/LoginUserUseCase');
-const LogoutUserUseCase = require('../Applications/use_case/UserUseCase/LogoutUserUseCase');
+const AddUserUseCase = require("../Applications/use_case/UserUseCase/AddUserUseCase");
+const LoginUserUseCase = require("../Applications/use_case/UserUseCase/LoginUserUseCase");
+const LogoutUserUseCase = require("../Applications/use_case/UserUseCase/LogoutUserUseCase");
 //threadUseCase
-const AddThreadUseCase = require('../Applications/use_case/ThreadUseCase/AddThreadUseCase');
-const GetDetailThreadByIdUseCase = require('../Applications/use_case/ThreadUseCase/GetDetailThreadByIdUseCase');
+const AddThreadUseCase = require("../Applications/use_case/ThreadUseCase/AddThreadUseCase");
+const GetDetailThreadByIdUseCase = require("../Applications/use_case/ThreadUseCase/GetDetailThreadByIdUseCase");
 
 //commentUseCase
-const AddCommentUseCase = require('../Applications/use_case/CommentUseCase/AddCommentUseCase');
-const DeleteCommentUseCase = require('../Applications/use_case/CommentUseCase/DeleteCommentUseCase');
-
-
+const AddCommentUseCase = require("../Applications/use_case/CommentUseCase/AddCommentUseCase");
+const DeleteCommentUseCase = require("../Applications/use_case/CommentUseCase/DeleteCommentUseCase");
+const ProductRepository = require("../Domains/products/ProductRepository");
+const ProductRepositoryPostgres = require("./repository/ProductRepositoryPostgres");
+const OrderRepository = require("../Domains/orders/OrderRepository");
+const OrderRepositoryPostgres = require("./repository/OrderRepositoryPostgres");
+const PaymentRepository = require("../Domains/payments/PaymentRepository");
+const PaymentRepositoryPostgres = require("./repository/PaymentRepositoryPostgres");
+const PaypalService = require("./payment/PaypalService");
+const AddProductUseCase = require("../Applications/use_case/ProductUseCase/AddProductUseCase");
+const GetProductDetailUseCase = require("../Applications/use_case/ProductUseCase/GetProductDetailUseCase");
+const DeleteProductUseCase = require("../Applications/use_case/ProductUseCase/DeleteProductUseCase");
+const CreateOrderUseCase = require("../Applications/use_case/OrderUseCase/CreateOrderUseCase");
+const GetOrderDetailUseCase = require("../Applications/use_case/OrderUseCase/GetOrderDetailUseCase");
+const CreatePaypalPaymentUseCase = require("../Applications/use_case/PaymentUseCase/CreatePaypalPaymentUseCase");
+const ProcessPaypalWebhookUseCase = require("../Applications/use_case/PaymentUseCase/ProcessPaypalWebhookUseCase");
 
 // creating container
 const container = createContainer();
@@ -130,7 +142,6 @@ container.register([
   },
 ]);
 
-
 // registering use cases
 container.register([
   //addUserUseCase
@@ -138,14 +149,14 @@ container.register([
     key: AddUserUseCase.name,
     Class: AddUserUseCase,
     parameter: {
-      injectType: 'destructuring',
+      injectType: "destructuring",
       dependencies: [
         {
-          name: 'userRepository',
+          name: "userRepository",
           internal: UserRepository.name,
         },
         {
-          name: 'passwordHash',
+          name: "passwordHash",
           internal: PasswordHash.name,
         },
       ],
@@ -156,22 +167,22 @@ container.register([
     key: LoginUserUseCase.name,
     Class: LoginUserUseCase,
     parameter: {
-      injectType: 'destructuring',
+      injectType: "destructuring",
       dependencies: [
         {
-          name: 'userRepository',
+          name: "userRepository",
           internal: UserRepository.name,
         },
         {
-          name: 'authenticationRepository',
+          name: "authenticationRepository",
           internal: AuthenticationRepository.name,
         },
         {
-          name: 'authenticationTokenManager',
+          name: "authenticationTokenManager",
           internal: AuthenticationTokenManager.name,
         },
         {
-          name: 'passwordHash',
+          name: "passwordHash",
           internal: PasswordHash.name,
         },
       ],
@@ -182,10 +193,10 @@ container.register([
     key: LogoutUserUseCase.name,
     Class: LogoutUserUseCase,
     parameter: {
-      injectType: 'destructuring',
+      injectType: "destructuring",
       dependencies: [
         {
-          name: 'authenticationRepository',
+          name: "authenticationRepository",
           internal: AuthenticationRepository.name,
         },
       ],
@@ -196,14 +207,14 @@ container.register([
     key: RefreshAuthenticationUseCase.name,
     Class: RefreshAuthenticationUseCase,
     parameter: {
-      injectType: 'destructuring',
+      injectType: "destructuring",
       dependencies: [
         {
-          name: 'authenticationRepository',
+          name: "authenticationRepository",
           internal: AuthenticationRepository.name,
         },
         {
-          name: 'authenticationTokenManager',
+          name: "authenticationTokenManager",
           internal: AuthenticationTokenManager.name,
         },
       ],
@@ -214,10 +225,10 @@ container.register([
     key: AddThreadUseCase.name,
     Class: AddThreadUseCase,
     parameter: {
-      injectType: 'destructuring',
+      injectType: "destructuring",
       dependencies: [
         {
-          name: 'threadRepository',
+          name: "threadRepository",
           internal: ThreadRepository.name,
         },
       ],
@@ -228,14 +239,14 @@ container.register([
     key: GetDetailThreadByIdUseCase.name,
     Class: GetDetailThreadByIdUseCase,
     parameter: {
-      injectType: 'destructuring',
+      injectType: "destructuring",
       dependencies: [
         {
-          name: 'threadRepository',
+          name: "threadRepository",
           internal: ThreadRepository.name,
         },
         {
-          name: 'commentRepository',
+          name: "commentRepository",
           internal: CommentRepository.name,
         },
       ],
@@ -246,16 +257,16 @@ container.register([
     key: AddCommentUseCase.name,
     Class: AddCommentUseCase,
     parameter: {
-      injectType: 'destructuring',
+      injectType: "destructuring",
       dependencies: [
         {
-          name: 'commentRepository',
+          name: "commentRepository",
           internal: CommentRepository.name,
         },
         {
-          name: 'threadRepository',
+          name: "threadRepository",
           internal: ThreadRepository.name,
-        }
+        },
       ],
     },
   },
@@ -264,16 +275,199 @@ container.register([
     key: DeleteCommentUseCase.name,
     Class: DeleteCommentUseCase,
     parameter: {
-      injectType: 'destructuring',
+      injectType: "destructuring",
       dependencies: [
         {
-          name: 'commentRepository',
+          name: "commentRepository",
           internal: CommentRepository.name,
         },
       ],
     },
   },
+]);
 
+// Register new repositories for products, orders, and payments
+container.register([
+  {
+    key: ProductRepository.name,
+    Class: ProductRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: OrderRepository.name,
+    Class: OrderRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: PaymentRepository.name,
+    Class: PaymentRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: PaypalService.name,
+    Class: PaypalService,
+    parameter: {
+      dependencies: [],
+    },
+  },
+]);
+
+// Register new use cases for products, orders, and payments
+container.register([
+  {
+    key: AddProductUseCase.name,
+    Class: AddProductUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "productRepository",
+          internal: ProductRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: GetProductDetailUseCase.name,
+    Class: GetProductDetailUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "productRepository",
+          internal: ProductRepository.name,
+        },
+        {
+          name: "userRepository",
+          internal: UserRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: DeleteProductUseCase.name,
+    Class: DeleteProductUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "productRepository",
+          internal: ProductRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: CreateOrderUseCase.name,
+    Class: CreateOrderUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "orderRepository",
+          internal: OrderRepository.name,
+        },
+        {
+          name: "productRepository",
+          internal: ProductRepository.name,
+        },
+        {
+          name: "paymentRepository",
+          internal: PaymentRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: GetOrderDetailUseCase.name,
+    Class: GetOrderDetailUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "orderRepository",
+          internal: OrderRepository.name,
+        },
+        {
+          name: "productRepository",
+          internal: ProductRepository.name,
+        },
+        {
+          name: "paymentRepository",
+          internal: PaymentRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: CreatePaypalPaymentUseCase.name,
+    Class: CreatePaypalPaymentUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "orderRepository",
+          internal: OrderRepository.name,
+        },
+        {
+          name: "paymentRepository",
+          internal: PaymentRepository.name,
+        },
+        {
+          name: "paypalService",
+          internal: PaypalService.name,
+        },
+      ],
+    },
+  },
+  {
+    key: ProcessPaypalWebhookUseCase.name,
+    Class: ProcessPaypalWebhookUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "orderRepository",
+          internal: OrderRepository.name,
+        },
+        {
+          name: "paymentRepository",
+          internal: PaymentRepository.name,
+        },
+        {
+          name: "paypalService",
+          internal: PaypalService.name,
+        },
+      ],
+    },
+  },
 ]);
 
 module.exports = container;
