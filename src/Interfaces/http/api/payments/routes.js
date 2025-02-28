@@ -4,7 +4,7 @@ const routes = (handler) => [
     path: "/payments/paypal/webhook",
     handler: handler.postPaypalWebhookHandler,
     options: {
-      auth: false, // Webhook dari PayPal tidak memerlukan authentikasi
+      auth: false,
       payload: {
         parse: true,
         output: "data",

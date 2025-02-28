@@ -19,17 +19,20 @@ class OrderRepositoryPostgres extends OrderRepository {
       text: "INSERT INTO orders VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id, user_id, product_id, quantity, status, total_amount, created_at",
       values: [id, userId, productId, quantity, status, totalAmount, createdAt],
     };
-
-    const result = await this._pool.query(query);
-
-    return new AddedOrder({
-      id: result.rows[0].id,
-      userId: result.rows[0].user_id,
-      productId: result.rows[0].product_id,
-      quantity: result.rows[0].quantity,
-      status: result.rows[0].status,
-      totalAmount: result.rows[0].total_amount,
-    });
+    try {
+      const result = await this._pool.query(query);
+      console.log(result.rows[0]);
+      return new AddedOrder({
+        id: result.rows[0].id,
+        userId: result.rows[0].user_id,
+        productId: result.rows[0].product_id,
+        quantity: Number(result.rows[0].quantity),
+        status: result.rows[0].status,
+        totalAmount: Number(result.rows[0].total_amount),
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getOrderById(id) {

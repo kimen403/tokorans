@@ -21,14 +21,14 @@ class PaymentRepositoryPostgres extends PaymentRepository {
     };
 
     const result = await this._pool.query(query);
-
+    console.log(result.rows[0]);
     return new AddedPayment({
       id: result.rows[0].id,
       orderId: result.rows[0].order_id,
       paymentMethod: result.rows[0].payment_method,
       status: result.rows[0].status,
       paypalTransactionId: result.rows[0].paypal_transaction_id,
-      amount: result.rows[0].amount,
+      amount: Number(result.rows[0].amount),
     });
   }
 

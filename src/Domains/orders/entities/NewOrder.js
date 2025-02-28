@@ -11,17 +11,8 @@ class NewOrder {
   _verifyPayload(payload) {
     const { userId, productId, quantity, totalAmount } = payload;
 
-    if (!userId || !productId || !quantity || !totalAmount) {
+    if (!userId) {
       throw new Error("NEW_ORDER.NOT_CONTAIN_NEEDED_PROPERTY");
-    }
-
-    if (
-      typeof userId !== "string" ||
-      typeof productId !== "string" ||
-      typeof quantity !== "number" ||
-      typeof totalAmount !== "number"
-    ) {
-      throw new Error("NEW_ORDER.NOT_MEET_DATA_TYPE_SPECIFICATION");
     }
 
     if (quantity <= 0) {

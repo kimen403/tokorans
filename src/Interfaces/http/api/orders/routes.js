@@ -15,14 +15,6 @@ const routes = (handler) => [
       auth: "tokorantau",
     },
   },
-  {
-    method: "POST",
-    path: "/orders/{id}/payments/paypal",
-    handler: handler.createPaypalPaymentHandler,
-    options: {
-      auth: "tokorantau",
-    },
-  },
 ];
 
 module.exports = routes;

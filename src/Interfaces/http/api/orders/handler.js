@@ -1,6 +1,5 @@
 const CreateOrderUseCase = require("../../../../Applications/use_case/OrderUseCase/CreateOrderUseCase");
 const GetOrderDetailUseCase = require("../../../../Applications/use_case/OrderUseCase/GetOrderDetailUseCase");
-const CreatePaypalPaymentUseCase = require("../../../../Applications/use_case/PaymentUseCase/CreatePaypalPaymentUseCase");
 
 class OrdersHandler {
   constructor(container) {
@@ -8,8 +7,6 @@ class OrdersHandler {
 
     this.postOrderHandler = this.postOrderHandler.bind(this);
     this.getOrderByIdHandler = this.getOrderByIdHandler.bind(this);
-    this.createPaypalPaymentHandler =
-      this.createPaypalPaymentHandler.bind(this);
   }
 
   async postOrderHandler(request, h) {
@@ -17,20 +14,22 @@ class OrdersHandler {
       CreateOrderUseCase.name
     );
     const { id: userId } = request.auth.credentials;
-
     const useCasePayload = {
       userId,
       productId: request.payload.productId,
       quantity: request.payload.quantity,
     };
 
-    const { order, payment } = await createOrderUseCase.execute(useCasePayload);
+    const { order, payment, paymentUrl } = await createOrderUseCase.execute(
+      useCasePayload
+    );
 
     const response = h.response({
       status: "success",
       data: {
         order,
         payment,
+        paymentUrl,
       },
     });
     response.code(201);
@@ -53,26 +52,6 @@ class OrdersHandler {
       status: "success",
       data: {
         order,
-      },
-    };
-  }
-
-  async createPaypalPaymentHandler(request) {
-    const createPaypalPaymentUseCase = this._container.getInstance(
-      CreatePaypalPaymentUseCase.name
-    );
-    const { id: orderId } = request.params;
-    const { id: userId } = request.auth.credentials;
-
-    const paypalPayment = await createPaypalPaymentUseCase.execute({
-      orderId,
-      userId,
-    });
-
-    return {
-      status: "success",
-      data: {
-        paymentUrl: paypalPayment.paymentUrl,
       },
     };
   }

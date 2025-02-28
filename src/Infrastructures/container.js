@@ -416,6 +416,10 @@ container.register([
           name: "paymentRepository",
           internal: PaymentRepository.name,
         },
+        {
+          name: "paypalService",
+          internal: PaypalService.name,
+        },
       ],
     },
   },
