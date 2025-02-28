@@ -19,7 +19,9 @@ class ProcessPaypalWebhookUseCase {
     }
 
     const { id: paypalTransactionId, custom_id: orderId } = resource;
-
+    console.log(`Paypal transaction ID: ${paypalTransactionId}`);
+    console.log(`Order ID: ${orderId}`);
+    console.log(`Event type: ${event_type}`);
     switch (event_type) {
       case "PAYMENT.CAPTURE.COMPLETED":
         // Update payment status to completed
