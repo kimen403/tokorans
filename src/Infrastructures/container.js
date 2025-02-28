@@ -49,6 +49,7 @@ const PaypalService = require("./payment/PaypalService");
 const AddProductUseCase = require("../Applications/use_case/ProductUseCase/AddProductUseCase");
 const GetProductDetailUseCase = require("../Applications/use_case/ProductUseCase/GetProductDetailUseCase");
 const DeleteProductUseCase = require("../Applications/use_case/ProductUseCase/DeleteProductUseCase");
+const GetProductsUseCase = require("../Applications/use_case/ProductUseCase/GetProductsUseCase");
 const CreateOrderUseCase = require("../Applications/use_case/OrderUseCase/CreateOrderUseCase");
 const GetOrderDetailUseCase = require("../Applications/use_case/OrderUseCase/GetOrderDetailUseCase");
 const CreatePaypalPaymentUseCase = require("../Applications/use_case/PaymentUseCase/CreatePaypalPaymentUseCase");
@@ -374,6 +375,19 @@ container.register([
   {
     key: DeleteProductUseCase.name,
     Class: DeleteProductUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "productRepository",
+          internal: ProductRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: GetProductsUseCase.name,
+    Class: GetProductsUseCase,
     parameter: {
       injectType: "destructuring",
       dependencies: [

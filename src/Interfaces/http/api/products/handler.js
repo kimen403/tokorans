@@ -1,6 +1,7 @@
 const AddProductUseCase = require("../../../../Applications/use_case/ProductUseCase/AddProductUseCase");
 const DeleteProductUseCase = require("../../../../Applications/use_case/ProductUseCase/DeleteProductUseCase");
 const GetProductDetailUseCase = require("../../../../Applications/use_case/ProductUseCase/GetProductDetailUseCase");
+const GetProductsUseCase = require("../../../../Applications/use_case/ProductUseCase/GetProductsUseCase");
 
 class ProductsHandler {
   constructor(container) {
@@ -9,6 +10,7 @@ class ProductsHandler {
     this.postProductHandler = this.postProductHandler.bind(this);
     this.getProductByIdHandler = this.getProductByIdHandler.bind(this);
     this.deleteProductHandler = this.deleteProductHandler.bind(this);
+    this.getProductsHandler = this.getProductsHandler.bind(this);
   }
 
   async postProductHandler(request, h) {
@@ -65,6 +67,20 @@ class ProductsHandler {
     return {
       status: "success",
       message: "produk berhasil dihapus",
+    };
+  }
+
+  async getProductsHandler() {
+    const getProductsUseCase = this._container.getInstance(
+      GetProductsUseCase.name
+    );
+    const { products } = await getProductsUseCase.execute();
+
+    return {
+      status: "success",
+      data: {
+        products,
+      },
     };
   }
 }
