@@ -88,9 +88,10 @@ class PaypalService {
 
   async verifyWebhookSignature(webhookPayload) {
     console.log("Verifying PayPal webhook signature...");
+    console.log("Getting access token...");
+    const accessToken = await this._getAccessToken();
+    console.log("Access token:", accessToken);
     try {
-      const accessToken = await this._getAccessToken();
-
       const response = await axios.post(
         `${this._baseUrl}/v1/notifications/verify-webhook-signature`,
         {
@@ -109,7 +110,7 @@ class PaypalService {
           },
         }
       );
-
+      console.log("PayPal Webhook Verification Response:", response.data);
       return response.data.verification_status === "SUCCESS";
     } catch (error) {
       console.log("PayPal Webhook Error:", error);
