@@ -11,7 +11,7 @@ class PaymentsHandler {
     const processPaypalWebhookUseCase = this._container.getInstance(
       ProcessPaypalWebhookUseCase.name
     );
-
+    console.log(request.payload);
     const webhookPayload = {
       event_type: request.payload.event_type,
       resource: request.payload.resource,
@@ -21,7 +21,7 @@ class PaymentsHandler {
       transmission_sig: request.headers["paypal-transmission-sig"],
       transmission_time: request.headers["paypal-transmission-time"],
     };
-
+    console.log("webhookPayload", webhookPayload);
     await processPaypalWebhookUseCase.execute(webhookPayload);
 
     const response = h.response({

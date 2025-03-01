@@ -9,7 +9,8 @@ class ProcessPaypalWebhookUseCase {
 
   async execute(useCasePayload) {
     const { event_type, resource } = useCasePayload;
-
+    console.log("Processing Paypal webhook...");
+    console.log(`Event type: ${event_type}`);
     // Verify webhook signature
     const isValid = await this._paypalService.verifyWebhookSignature(
       useCasePayload
