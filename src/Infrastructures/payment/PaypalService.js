@@ -56,25 +56,34 @@ class PaypalService {
   async verifyWebhookSignature(webhookPayload) {
     console.log("Verifying webhook signature...");
     const request = new paypal.notifications.VerifyWebhookSignatureRequest();
-    request.requestBody({
-      auth_algo: webhookPayload.auth_algo,
-      cert_url: webhookPayload.cert_url,
-      transmission_id: webhookPayload.transmission_id,
-      transmission_sig: webhookPayload.transmission_sig,
-      transmission_time: webhookPayload.transmission_time,
-      webhook_id: process.env.PAYPAL_WEBHOOK_ID,
-      webhook_event: webhookPayload,
-    });
-
     try {
-      const response = await this._client.execute(request);
-      console.log(
-        "Webhook verification status: ",
-        response.result.verification_status
-      );
-      return response.result.verification_status === "SUCCESS";
+      console.log("Setting request body...");
+      request.requestBody({
+        auth_algo: webhookPayload.auth_algo,
+        cert_url: webhookPayload.cert_url,
+        transmission_id: webhookPayload.transmission_id,
+        transmission_sig: webhookPayload.transmission_sig,
+        transmission_time: webhookPayload.transmission_time,
+        webhook_id: process.env.PAYPAL_WEBHOOK_ID,
+        webhook_event: webhookPayload,
+      });
+      console.log("Request body set successfully.");
+
+      try {
+        console.log("Executing request...");
+        const response = await this._client.execute(request);
+        console.log("Request executed successfully.");
+        console.log(
+          "Webhook verification status: ",
+          response.result.verification_status
+        );
+        return response.result.verification_status === "SUCCESS";
+      } catch (error) {
+        console.log("Error executing request: ", error);
+        return false;
+      }
     } catch (error) {
-      console.log("Error veryfi webbhookk ", error);
+      console.log("Error setting request body: ", error);
       return false;
     }
   }
