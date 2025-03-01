@@ -1,4 +1,4 @@
-const paypal = require("@paypal/checkout-server-sdk");
+const axios = require("axios");
 const InvariantError = require("../../Commons/exceptions/InvariantError");
 
 class PaypalService {
@@ -10,80 +10,111 @@ class PaypalService {
       throw new Error("PAYPAL_SERVICE.MISSING_CREDENTIALS");
     }
 
-    const environment =
+    this._clientId = clientId;
+    this._clientSecret = clientSecret;
+    this._baseUrl =
       process.env.NODE_ENV === "production"
-        ? new paypal.core.LiveEnvironment(clientId, clientSecret)
-        : new paypal.core.SandboxEnvironment(clientId, clientSecret);
+        ? "https://api.paypal.com"
+        : "https://api-m.sandbox.paypal.com";
+  }
 
-    this._client = new paypal.core.PayPalHttpClient(environment);
+  async _getAccessToken() {
+    try {
+      const auth = Buffer.from(
+        `${this._clientId}:${this._clientSecret}`
+      ).toString("base64");
+      const response = await axios.post(
+        `${this._baseUrl}/v1/oauth2/token`,
+        "grant_type=client_credentials",
+        {
+          headers: {
+            Authorization: `Basic ${auth}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+
+      return response.data.access_token;
+    } catch (error) {
+      throw new InvariantError("gagal mendapatkan token paypal");
+    }
   }
 
   async createPayment({ amount, currency, orderId, successUrl, cancelUrl }) {
-    const request = new paypal.orders.OrdersCreateRequest();
-    request.prefer("return=representation");
-    request.requestBody({
-      intent: "CAPTURE",
-      purchase_units: [
-        {
-          amount: {
-            currency_code: currency,
-            value: amount.toString(),
-          },
-          custom_id: orderId,
-        },
-      ],
-      application_context: {
-        return_url: successUrl,
-        cancel_url: cancelUrl,
-      },
-    });
-
     try {
-      const order = await this._client.execute(request);
-      const approvalUrl = order.result.links.find(
-        (link) => link.rel === "approve"
-      ).href;
+      const accessToken = await this._getAccessToken();
+
+      const response = await axios.post(
+        `${this._baseUrl}/v2/checkout/orders`,
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              amount: {
+                currency_code: currency,
+                value: amount.toString(),
+              },
+              custom_id: orderId,
+            },
+          ],
+          application_context: {
+            return_url: successUrl,
+            cancel_url: cancelUrl,
+            brand_name: "Toko Rantau",
+            landing_page: "LOGIN",
+            user_action: "PAY_NOW",
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const { id, links } = response.data;
+      const approvalUrl = links.find((link) => link.rel === "approve").href;
 
       return {
-        id: order.result.id,
+        id,
         approvalUrl,
       };
     } catch (error) {
+      console.error("PayPal API Error:", error.response?.data || error.message);
       throw new InvariantError("gagal membuat pembayaran paypal");
     }
   }
 
   async verifyWebhookSignature(webhookPayload) {
-    console.log("Verifying webhook signature...");
-    const request = new paypal.notifications.VerifyWebhookSignatureRequest();
     try {
-      console.log("Setting request body...");
-      request.requestBody({
-        auth_algo: webhookPayload.auth_algo,
-        cert_url: webhookPayload.cert_url,
-        transmission_id: webhookPayload.transmission_id,
-        transmission_sig: webhookPayload.transmission_sig,
-        transmission_time: webhookPayload.transmission_time,
-        webhook_id: process.env.PAYPAL_WEBHOOK_ID,
-        webhook_event: webhookPayload,
-      });
-      console.log("Request body set successfully.");
+      const accessToken = await this._getAccessToken();
 
-      try {
-        console.log("Executing request...");
-        const response = await this._client.execute(request);
-        console.log("Request executed successfully.");
-        console.log(
-          "Webhook verification status: ",
-          response.result.verification_status
-        );
-        return response.result.verification_status === "SUCCESS";
-      } catch (error) {
-        console.log("Error executing request: ", error);
-        return false;
-      }
+      const response = await axios.post(
+        `${this._baseUrl}/v1/notifications/verify-webhook-signature`,
+        {
+          auth_algo: webhookPayload.auth_algo,
+          cert_url: webhookPayload.cert_url,
+          transmission_id: webhookPayload.transmission_id,
+          transmission_sig: webhookPayload.transmission_sig,
+          transmission_time: webhookPayload.transmission_time,
+          webhook_id: process.env.PAYPAL_WEBHOOK_ID,
+          webhook_event: webhookPayload,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.verification_status === "SUCCESS";
     } catch (error) {
-      console.log("Error setting request body: ", error);
+      console.error(
+        "PayPal Webhook Error:",
+        error.response?.data || error.message
+      );
       return false;
     }
   }
