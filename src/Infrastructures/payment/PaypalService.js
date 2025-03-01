@@ -112,10 +112,7 @@ class PaypalService {
 
       return response.data.verification_status === "SUCCESS";
     } catch (error) {
-      console.log(
-        "PayPal Webhook Error:",
-        error.response?.data || error.message
-      );
+      console.log("PayPal Webhook Error:", error);
       return false;
     }
   }
