@@ -87,6 +87,7 @@ class PaypalService {
   }
 
   async verifyWebhookSignature(webhookPayload) {
+    console.log("Verifying PayPal webhook signature...");
     try {
       const accessToken = await this._getAccessToken();
 
@@ -111,7 +112,7 @@ class PaypalService {
 
       return response.data.verification_status === "SUCCESS";
     } catch (error) {
-      console.error(
+      console.log(
         "PayPal Webhook Error:",
         error.response?.data || error.message
       );
