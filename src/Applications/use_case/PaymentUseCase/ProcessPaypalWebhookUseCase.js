@@ -12,9 +12,11 @@ class ProcessPaypalWebhookUseCase {
     console.log("Processing Paypal webhook...");
     console.log(`Event type: ${event_type}`);
     // Verify webhook signature
+    console.log("paypalService", this._paypalService);
     const isValid = await this._paypalService.verifyWebhookSignature(
       useCasePayload
     );
+    console.log(`Webhook signature is valid: ${isValid}`);
     if (!isValid) {
       throw new InvariantError("invalid webhook signature");
     }
