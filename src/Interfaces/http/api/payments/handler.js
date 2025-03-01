@@ -28,7 +28,6 @@ class PaymentsHandler {
       message: "webhook processed successfully",
     });
     response.code(200);
-    console.log(response);
     return response;
   }
 }

@@ -18,7 +18,7 @@ class ProcessPaypalWebhookUseCase {
 
     const { event_type, resource } = useCasePayload.webhook_event;
     console.log("event_type : ", event_type);
-    console.log("resource : ", resource);
+
     const orderId =
       resource.purchase_units?.[0]?.custom_id || resource.custom_id;
     const paypalTransactionId = resource.id;
@@ -28,7 +28,7 @@ class ProcessPaypalWebhookUseCase {
     }
     console.log("orderId : ", orderId);
     console.log("paypalTransactionId : ", paypalTransactionId);
-
+    console.log("payment event type : ", event_type);
     switch (event_type) {
       case "CHECKOUT.ORDER.APPROVED":
         // Update payment status to completed
@@ -44,8 +44,8 @@ class ProcessPaypalWebhookUseCase {
         console.log("selesai payment repository");
         break;
 
-      case "PAYMENT.CAPTURE.DENIED":
-      case "PAYMENT.CAPTURE.DECLINED":
+      case "CHECKOUT.ORDER.DENIED":
+      case "CHECKOUT.CAPTURE.DECLINED":
         // Update payment status to failed
         await this._paymentRepository.updatePaymentStatus(
           orderId,
