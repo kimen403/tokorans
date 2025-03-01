@@ -54,6 +54,7 @@ class PaypalService {
   }
 
   async verifyWebhookSignature(webhookPayload) {
+    console.log("Verifying webhook signature...");
     const request = new paypal.notifications.VerifyWebhookSignatureRequest();
     request.requestBody({
       auth_algo: webhookPayload.auth_algo,
@@ -67,8 +68,13 @@ class PaypalService {
 
     try {
       const response = await this._client.execute(request);
+      console.log(
+        "Webhook verification status: ",
+        response.result.verification_status
+      );
       return response.result.verification_status === "SUCCESS";
     } catch (error) {
+      console.log("Error veryfi webbhookk ", error);
       return false;
     }
   }
