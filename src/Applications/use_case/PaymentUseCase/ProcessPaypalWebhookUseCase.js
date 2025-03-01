@@ -17,6 +17,8 @@ class ProcessPaypalWebhookUseCase {
     }
 
     const { event_type, resource } = useCasePayload.webhook_event;
+    console.log("event_type : ", event_type);
+    console.log("resource : ", resource);
     const orderId =
       resource.purchase_units?.[0]?.custom_id || resource.custom_id;
     const paypalTransactionId = resource.id;
@@ -24,10 +26,13 @@ class ProcessPaypalWebhookUseCase {
     if (!orderId) {
       throw new InvariantError("order id not found in webhook payload");
     }
-
+    console.log("orderId : ", orderId);
+    console.log("paypalTransactionId : ", paypalTransactionId);
     switch (event_type) {
       case "PAYMENT.CAPTURE.COMPLETED":
         // Update payment status to completed
+        console.log("PAYMENT.CAPTURE.COMPLETED");
+        console.log("masuk payment repository");
         await this._paymentRepository.updatePaymentStatus(
           orderId,
           "completed",
@@ -35,6 +40,7 @@ class ProcessPaypalWebhookUseCase {
         );
         // Update order status to completed
         await this._orderRepository.updateOrderStatus(orderId, "completed");
+        console.log("selesai payment repository");
         break;
 
       case "PAYMENT.CAPTURE.DENIED":
