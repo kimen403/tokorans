@@ -28,10 +28,11 @@ class ProcessPaypalWebhookUseCase {
     }
     console.log("orderId : ", orderId);
     console.log("paypalTransactionId : ", paypalTransactionId);
+
     switch (event_type) {
-      case "PAYMENT.CAPTURE.COMPLETED":
+      case "CHECKOUT.ORDER.APPROVED":
         // Update payment status to completed
-        console.log("PAYMENT.CAPTURE.COMPLETED");
+        console.log("CHECKOUT.ORDER.APPROVED");
         console.log("masuk payment repository");
         await this._paymentRepository.updatePaymentStatus(
           orderId,
