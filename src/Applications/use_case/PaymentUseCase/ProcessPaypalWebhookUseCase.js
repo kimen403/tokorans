@@ -12,6 +12,7 @@ class ProcessPaypalWebhookUseCase {
     console.log("Processing Paypal webhook...");
     console.log(`Event type: ${event_type}`);
     // Verify webhook signature
+    console.log("mau test paypalService");
     console.log("paypalService", this._paypalService);
     const isValid = await this._paypalService.verifyWebhookSignature(
       useCasePayload
