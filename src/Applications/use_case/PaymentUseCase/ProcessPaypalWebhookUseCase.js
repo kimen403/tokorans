@@ -11,7 +11,7 @@ class ProcessPaypalWebhookUseCase {
     const isValid = await this._paypalService.verifyWebhookSignature(
       useCasePayload
     );
-
+    console.log("verifycation : ", isValid);
     if (!isValid) {
       throw new InvariantError("invalid webhook signature");
     }
