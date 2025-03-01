@@ -86,22 +86,27 @@ class PaypalService {
     }
   }
 
-  async verifyWebhookSignature(webhookPayload) {
-    console.log("Verifying PayPal webhook signature...");
-    console.log("Getting access token...");
-    const accessToken = await this._getAccessToken();
-    console.log("Access token:", accessToken);
+  async verifyWebhookSignature({
+    transmission_id,
+    transmission_time,
+    cert_url,
+    auth_algo,
+    transmission_sig,
+    webhook_event,
+  }) {
     try {
+      const accessToken = await this._getAccessToken();
+
       const response = await axios.post(
         `${this._baseUrl}/v1/notifications/verify-webhook-signature`,
         {
-          auth_algo: webhookPayload.auth_algo,
-          cert_url: webhookPayload.cert_url,
-          transmission_id: webhookPayload.transmission_id,
-          transmission_sig: webhookPayload.transmission_sig,
-          transmission_time: webhookPayload.transmission_time,
+          auth_algo,
+          cert_url,
+          transmission_id,
+          transmission_sig,
+          transmission_time,
           webhook_id: process.env.PAYPAL_WEBHOOK_ID,
-          webhook_event: webhookPayload,
+          webhook_event,
         },
         {
           headers: {
@@ -110,10 +115,13 @@ class PaypalService {
           },
         }
       );
-      console.log("PayPal Webhook Verification Response:", response.data);
+      console.log("PayPal Webhook Verification:", response);
       return response.data.verification_status === "SUCCESS";
     } catch (error) {
-      console.log("PayPal Webhook Error:", error);
+      console.error(
+        "PayPal Webhook Error:",
+        error.response?.data || error.message
+      );
       return false;
     }
   }

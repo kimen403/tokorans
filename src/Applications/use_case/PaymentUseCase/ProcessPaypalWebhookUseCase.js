@@ -8,24 +8,23 @@ class ProcessPaypalWebhookUseCase {
   }
 
   async execute(useCasePayload) {
-    const { event_type, resource } = useCasePayload;
-    console.log("Processing Paypal webhook...");
-    console.log(`Event type: ${event_type}`);
-    // Verify webhook signature
-    console.log("mau test paypalService");
-    console.log("paypalService", this._paypalService.verifyWebhookSignature);
     const isValid = await this._paypalService.verifyWebhookSignature(
       useCasePayload
     );
-    console.log(`Webhook signature is valid: ${isValid}`);
+
     if (!isValid) {
       throw new InvariantError("invalid webhook signature");
     }
 
-    const { id: paypalTransactionId, custom_id: orderId } = resource;
-    console.log(`Paypal transaction ID: ${paypalTransactionId}`);
-    console.log(`Order ID: ${orderId}`);
-    console.log(`Event type: ${event_type}`);
+    const { event_type, resource } = useCasePayload.webhook_event;
+    const orderId =
+      resource.purchase_units?.[0]?.custom_id || resource.custom_id;
+    const paypalTransactionId = resource.id;
+
+    if (!orderId) {
+      throw new InvariantError("order id not found in webhook payload");
+    }
+
     switch (event_type) {
       case "PAYMENT.CAPTURE.COMPLETED":
         // Update payment status to completed
