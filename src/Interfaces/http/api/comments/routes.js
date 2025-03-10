@@ -15,6 +15,11 @@ const routes = (handler) => [
       auth: "tokorantau",
     },
   },
+  {
+    method: "POST",
+    path: "/undanganemma",
+    handler: handler.postUndanganEmmaHandler,
+  },
 ];
 
 module.exports = routes;

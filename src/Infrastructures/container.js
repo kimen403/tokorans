@@ -54,6 +54,12 @@ const CreateOrderUseCase = require("../Applications/use_case/OrderUseCase/Create
 const GetOrderDetailUseCase = require("../Applications/use_case/OrderUseCase/GetOrderDetailUseCase");
 const CreatePaypalPaymentUseCase = require("../Applications/use_case/PaymentUseCase/CreatePaypalPaymentUseCase");
 const ProcessPaypalWebhookUseCase = require("../Applications/use_case/PaymentUseCase/ProcessPaypalWebhookUseCase");
+const MailSender = require("./mailsender/MailSender");
+
+const InvitationRepository = require("../Domains/invitation/InvitationRepository");
+const InvitationRepositoryPostgres = require("./repository/InvitationRepositoryPostgres");
+
+const InvitationUseCase = require("../Applications/use_case/invitationUseCase/invitationUseCase");
 
 // creating container
 const container = createContainer();
@@ -141,10 +147,38 @@ container.register([
       ],
     },
   },
+  //invitationRepository
+  {
+    key: InvitationRepository.name,
+    Class: InvitationRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
 ]);
 
 // registering use cases
 container.register([
+  {
+    key: InvitationUseCase.name,
+    Class: InvitationUseCase,
+    parameter: {
+      injectType: "destructuring",
+      dependencies: [
+        {
+          name: "invitationRepository",
+          internal: InvitationRepository.name,
+        },
+      ],
+    },
+  },
   //addUserUseCase
   {
     key: AddUserUseCase.name,
@@ -334,6 +368,13 @@ container.register([
   {
     key: PaypalService.name,
     Class: PaypalService,
+    parameter: {
+      dependencies: [],
+    },
+  },
+  {
+    key: MailSender.name,
+    Class: MailSender,
     parameter: {
       dependencies: [],
     },
